@@ -1,0 +1,25 @@
+{
+  "name": "filestorage",
+  "version": "0.0.1",
+  "description": "a file storage system",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "ts-node -r tsconfig-paths/register ./index.ts --project ./tsconfig.json --files",
+    "test": "jest"
+  },
+  "keywords": [
+    "node",
+    "file",
+    "storeage"
+  ],
+  "author": "Jeremy Yu",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^27.0.6",
+    "ts-node": "^10.2.0",
+    "tsconfig-paths": "^3.10.1"
+  },
+  "dependencies": {
+    "dayjs": "^1.10.6"
+  }
+}

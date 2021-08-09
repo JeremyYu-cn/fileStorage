@@ -1,0 +1,26 @@
+{
+  "name": "watch_server",
+  "version": "0.0.1",
+  "description": "handle submit front end error server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "typescript",
+    "frontend",
+    "error"
+  ],
+  "author": "JeremyYu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/koa": "^2.13.4",
+    "@types/node": "^16.4.13",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "koa": "^2.13.1",
+    "koa-router": "^10.0.0"
+  }
+}
