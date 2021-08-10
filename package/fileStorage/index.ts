@@ -4,6 +4,11 @@ const collection = new Collection();
 
 // collection.createConnection('test');
 
-collection.getConnection('test').then((msg) => {
-  msg.where({ test: 111 }).select();
+collection.getConnection('test').then(async (msg) => {
+  const result = await msg.where({ test1: 111, test2: 111 }).update({
+    data: {
+      test3: 111,
+    },
+  });
+  console.log(result);
 });
