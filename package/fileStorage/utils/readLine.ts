@@ -1,5 +1,5 @@
 import { checkIsFile } from '@/utils/fileControl';
-import { createReadStream, createWriteStream, write, open } from 'fs';
+import { createReadStream, createWriteStream, appendFile } from 'fs';
 import { createInterface } from 'readline';
 import dayjs from 'dayjs';
 
@@ -8,6 +8,11 @@ export interface IReadLineFile<T> {
   page?: number;
   limit?: number;
   handleCondition?: (data: T) => boolean;
+}
+
+export interface IInsertFile {
+  fileName: string;
+  data: string;
 }
 
 export interface IUpdateFile<T> extends IReadLineFile<T> {
@@ -82,42 +87,56 @@ export function updateFile<T extends Record<string, any>>({
   return new Promise((resolve) => {
     const startTime = Date.now();
     const str = '{ testwrite: 111 }\n';
-    const strBuf = Buffer.alloc(str.length, str);
-    open(fileName, 'w', (err, fd) => {
-      if (err)
-        getErrorStatus(
-          `${fileName} is not defined`,
-          dayjs().diff(startTime, 'ms')
-        );
-      else {
-        write(fd, strBuf, 0, strBuf.length, 0, (...args) => {
-          console.log(args);
-        });
-      }
+    const strBuf = Buffer.from(str, 'utf-8');
+    const readStream = createReadStream(fileName);
+    let data = '';
+
+    const stream = createWriteStream(fileName, {
+      start: 10,
+    });
+    stream.write(strBuf, (err) => {
+      console.log();
     });
 
-    const rl = createInterface({
-      input: createReadStream(fileName),
-    });
+    // const rl = createInterface({
+    //   input: createReadStream(fileName),
+    // });
 
-    const ignoreNum = (page - 1) * limit;
-    let lineIndex = 0;
-    let count = 0;
-    rl.on('line', (msg) => {
-      if (ignoreNum > count) {
-        count++;
-      } else if (lineIndex > limit) {
-        rl.close();
+    // const ignoreNum = (page - 1) * limit;
+    // let lineIndex = 0;
+    // let count = 0;
+    // rl.on('line', (msg) => {
+    //   if (ignoreNum > count) {
+    //     count++;
+    //   } else if (lineIndex > limit) {
+    //     rl.close();
+    //   } else {
+    //     const json: T = JSON.parse(msg);
+    //     if (!handleCondition || handleCondition(json)) {
+    //     }
+    //     lineIndex++;
+    //   }
+    // });
+
+    // rl.on('close', () => {
+    //   resolve(getSuccessStatus([], dayjs().diff(startTime, 'ms')));
+    // });
+  });
+}
+
+/**
+ * 插入数据
+ * @returns
+ */
+export function insertData({ fileName, data }: IInsertFile) {
+  const startTime = Date.now();
+  return new Promise((resolve) => {
+    appendFile(fileName, data, 'utf-8', (err) => {
+      if (err) {
+        resolve(getErrorStatus(err.message, dayjs().diff(startTime, 'ms')));
       } else {
-        const json: T = JSON.parse(msg);
-        if (!handleCondition || handleCondition(json)) {
-        }
-        lineIndex++;
+        resolve(getSuccessStatus([], dayjs().diff(startTime, 'ms')));
       }
-    });
-
-    rl.on('close', () => {
-      resolve(getSuccessStatus([], dayjs().diff(startTime, 'ms')));
     });
   });
 }
