@@ -1,4 +1,4 @@
-import { checkIsFile } from '@/utils/fileControl';
+import { checkIsFile } from '../utils/fileControl';
 import { createReadStream, createWriteStream, appendFile } from 'fs';
 import { createInterface } from 'readline';
 import dayjs from 'dayjs';
@@ -59,7 +59,9 @@ export function readlineFile<T extends Record<string, any> = {}>({
           rl.close();
         } else {
           const json: T = JSON.parse(msg);
+
           if (!handleCondition || handleCondition(json)) {
+            console.log(msg);
             arr.push(json);
           }
           lineIndex++;
@@ -128,7 +130,10 @@ export function updateFile<T extends Record<string, any>>({
  * 插入数据
  * @returns
  */
-export function insertData({ fileName, data }: IInsertFile) {
+export function insertData({
+  fileName,
+  data,
+}: IInsertFile): Promise<IReadLineResult<[]>> {
   const startTime = Date.now();
   return new Promise((resolve) => {
     appendFile(fileName, data, 'utf-8', (err) => {

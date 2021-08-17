@@ -1,4 +1,3 @@
-import { resolveSoa } from 'dns';
 import { access, constants, mkdir, writeFile, stat } from 'fs';
 import path from 'path';
 /**

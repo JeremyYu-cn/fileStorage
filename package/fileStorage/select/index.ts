@@ -1,13 +1,25 @@
 import {
   IReadLineFile,
   IReadLineResult,
+  IInsertFile,
   readlineFile,
   updateFile,
-} from '@/utils/readLine';
+  insertData,
+} from '../utils/readLine';
 
 export interface IUpdateOption {
   data: Record<string, any>;
 }
+
+enum ConditionType {
+  LIMIT = 'limit',
+  CONDITION = 'condition',
+}
+
+type conditionData = {
+  type: ConditionType;
+  condition: any;
+};
 
 export default class Select {
   /**
@@ -17,20 +29,25 @@ export default class Select {
   /**
    * 条目限制
    */
-  private limit: number;
+  private totalLimit: number;
 
   constructor(filePath: string) {
     this.filePath = filePath;
-    this.limit = 10000000;
+    this.totalLimit = 10000000;
   }
 
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
-    const condition = arguments[0] || {};
+    const params: conditionData[] = Array.from(arguments[0]);
+    const condition =
+      params
+        .filter((val) => val.type === ConditionType.CONDITION)
+        .map((val) => val.condition)[0] || {};
+
     return new Promise((resolve) => {
       readlineFile<T>({
         fileName: this.filePath,
         handleCondition: (data) => this.handleSelectCondition(data, condition),
-        limit: this.limit,
+        limit: this.totalLimit,
       }).then((msg) => {
         resolve(msg);
       });
@@ -43,10 +60,40 @@ export default class Select {
    * @returns
    */
   where(condition: Record<string, any>) {
-    return {
-      select: this.select.bind(this, condition),
-      update: (data: IUpdateOption) => this.update(data, condition),
-    };
+    return this.controlFun(condition, {
+      limit: (num: number) =>
+        this.limit.bind(this, num, {
+          type: ConditionType.CONDITION,
+          condition,
+        })(),
+    });
+  }
+
+  /**
+   * 限制查询条目
+   * @param num
+   * @returns
+   */
+  limit(num: number) {
+    const nums = Array.prototype.splice.call(arguments, 0, 1);
+    const arr = Array.from(arguments);
+    return this.controlFun(
+      [...arr, { type: ConditionType.LIMIT, condition: nums }],
+      {}
+    );
+  }
+
+  private controlFun<T extends Record<string, any>>(
+    condition: any,
+    extraFunction?: T
+  ) {
+    return Object.assign(
+      {
+        select: this.select.bind(this, condition),
+        update: (data: IUpdateOption) => this.update(data, condition),
+      },
+      extraFunction
+    );
   }
 
   /**
@@ -63,6 +110,13 @@ export default class Select {
     });
   }
 
+  public async insert(data: Record<string, any>) {
+    return await insertData({
+      fileName: this.filePath,
+      data: `\n${JSON.stringify(data)}`,
+    });
+  }
+
   /**
    * 处理根据条件查询方法
    */
@@ -73,6 +127,8 @@ export default class Select {
     const keys = Object.keys(condition);
     return keys.every((val) => {
       const value = condition[val];
+      if (condition.type === 'limit') return true;
+
       switch (Object.prototype.toString.call(val)) {
         case '[object String]':
         case '[object Number]':
@@ -96,7 +152,7 @@ export default class Select {
       fileName: this.filePath,
       handleCondition: (data) => this.handleSelectCondition(data, condition),
       updateValue,
-      limit: this.limit,
+      limit: this.totalLimit,
     });
 
     return result;
