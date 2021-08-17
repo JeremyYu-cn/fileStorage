@@ -18,6 +18,11 @@ export type getCollectionOption = {
   where: Record<string, any>;
 };
 
+export type appendDataOption = {
+  collectName: string;
+  data: Record<string, any>;
+};
+
 async function getCollection(collectName: string) {
   const collect =
     CollectionCache[collectName] ||
@@ -28,11 +33,25 @@ async function getCollection(collectName: string) {
   return collect;
 }
 
+/**
+ * 查询服务
+ * @returns
+ */
 export async function getLogger({
   collectName,
   limit,
   where,
 }: getCollectionOption) {
   const collect = await getCollection(collectName);
-  return await collect.where({ test1: 111 }).limit(limit).select();
+  return await collect.where(where).limit(limit).select();
+}
+
+/**
+ * 插入数据
+ * @returns
+ */
+export async function appendLogger({ collectName, data }: appendDataOption) {
+  const collect = await getCollection(collectName);
+  const postData = Object.assign({ createAt: Date.now() }, data);
+  return await collect.insert(postData);
 }
