@@ -1,5 +1,5 @@
 import KoaRouter from '@koa/router';
-import { appendLogger, getLogger } from '../method/logger';
+import { appendLogger, createLogger, getLogger } from '../method/logger';
 
 const router = new KoaRouter({
   prefix: '/logger',
@@ -17,9 +17,19 @@ router.get('getLogger', '/get', async (ctx) => {
   });
 });
 
+router.post('createLogger', '/create', async (ctx, next) => {
+  const { collectName } = ctx.request.body;
+
+  if (!collectName) {
+    throw new Error('collectName must be send');
+  }
+  const result = await createLogger({ collectName });
+  ctx.body = result;
+  await next();
+});
+
 router.post('appendLogger', '/append', async (ctx) => {
   const { key, data } = ctx.request.body;
-
   ctx.body = await appendLogger({
     collectName: <string>key,
     data,

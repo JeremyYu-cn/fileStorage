@@ -16,13 +16,17 @@
   "license": "MIT",
   "dependencies": {
     "@koa/router": "^10.1.0",
+    "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.1",
-    "koa-bodyparser": "^4.3.0"
+    "koa-bodyparser": "^4.3.0",
+    "koa-jwt": "^4.0.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.4",
     "@types/koa": "^2.13.4",
     "@types/koa-bodyparser": "^4.3.3",
     "@types/koa__router": "^8.0.7",
+    "@types/koa-jwt": "^3.3.0",
     "ts-node": "^10.2.0",
     "tsconfig-paths": "^3.10.1"
   }
