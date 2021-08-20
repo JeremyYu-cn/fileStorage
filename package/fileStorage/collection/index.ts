@@ -51,4 +51,12 @@ export default class Collection {
     }
     return new Select(filePath);
   }
+
+  /**
+   * 查看collection是否存在
+   */
+  async getCollectionIsExists(name: string): Promise<boolean> {
+    const filePath = path.resolve(this.baseUrl, `${name}.${this.extra}`);
+    return await getFileIsExists(filePath);
+  }
 }

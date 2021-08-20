@@ -37,17 +37,21 @@ export default class Select {
   }
 
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
-    const params: conditionData[] = Array.from(arguments[0]);
-    const condition =
-      params
-        .filter((val) => val.type === ConditionType.CONDITION)
-        .map((val) => val.condition)[0] || {};
+    const params: conditionData[] = Array.from(arguments[0] || []);
+    let conditionData = params.filter(
+      (val) => val.type === ConditionType.CONDITION
+    )[0];
+    const condition = conditionData ? conditionData.condition : {};
+
+    let limitData = params.filter((val) => val.type === ConditionType.LIMIT)[0];
+    const limit = limitData ? limitData.condition : this.totalLimit;
 
     return new Promise((resolve) => {
       readlineFile<T>({
         fileName: this.filePath,
         handleCondition: (data) => this.handleSelectCondition(data, condition),
-        limit: this.totalLimit,
+        limit,
+        totalLimit: this.totalLimit,
       }).then((msg) => {
         resolve(msg);
       });

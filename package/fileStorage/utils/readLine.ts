@@ -6,7 +6,9 @@ import dayjs from 'dayjs';
 export interface IReadLineFile<T> {
   fileName: string;
   page?: number;
+  pageSize?: number;
   limit?: number;
+  totalLimit?: number;
   handleCondition?: (data: T) => boolean;
 }
 
@@ -36,7 +38,9 @@ export function readlineFile<T extends Record<string, any> = {}>({
   fileName,
   handleCondition,
   page = 1,
+  pageSize = 100,
   limit = 100,
+  totalLimit = 10000,
 }: IReadLineFile<T>): Promise<IReadLineResult<T[]>> {
   return new Promise(async (resolve, reject) => {
     if (!(await checkIsFile(fileName))) {
@@ -48,21 +52,27 @@ export function readlineFile<T extends Record<string, any> = {}>({
         input: createReadStream(fileName),
       });
 
-      const ignoreNum = (page - 1) * limit;
+      const ignoreNum = (page - 1) * pageSize;
       let lineIndex = 0;
       let count = 0;
 
       rl.on('line', (msg) => {
+        if (msg === '') return;
         if (ignoreNum > count) {
           count++;
-        } else if (lineIndex > limit) {
+        } else if (lineIndex > totalLimit) {
           rl.close();
         } else {
           const json: T = JSON.parse(msg);
 
-          if (!handleCondition || handleCondition(json)) {
-            console.log(msg);
+          if (
+            (!handleCondition || handleCondition(json)) &&
+            arr.length < limit
+          ) {
             arr.push(json);
+            if (arr.length >= limit) {
+              rl.close();
+            }
           }
           lineIndex++;
         }
