@@ -1,12 +1,14 @@
 import Koa from 'koa';
 import router from './router';
 import bodyParser from 'koa-bodyparser';
-import { handleError, handleJwt, handleReturn } from './middleware';
+import { handleError, handleJwt, handleReturn, handlCORS } from './middleware';
 
 const app = new Koa();
 const PORT = 8899;
 // 错误处理
 app.use(handleError);
+// 跨域处理
+app.use(handlCORS);
 // jwt处理
 app.use(handleJwt());
 // 传入参数处理

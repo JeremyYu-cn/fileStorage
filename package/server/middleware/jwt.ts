@@ -4,6 +4,7 @@ import { JWT_SECRET } from '../config';
 const EXCLUDE_ROUTE: string | RegExp | (string | RegExp)[] | undefined = [
   '/logger/append',
   '/logger/get',
+  '/logger/list',
   '/logger/create',
 ];
 

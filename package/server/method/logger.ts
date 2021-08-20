@@ -8,8 +8,9 @@
 import Collection from '../../fileStorage/collection';
 import Select from '../../fileStorage/select';
 import { getMd5Code } from '../common/crypto';
-const collection = new Collection();
+import { SYSTEM_COLLECT_NAME } from '../config';
 
+const collection = new Collection();
 const CollectionCache: Record<string, Select> = {};
 
 export type getCollectionOption = {
@@ -28,6 +29,13 @@ export type createLoggerOption = {
   collectName: string;
 };
 
+type systemPostData = {
+  id: number;
+  collectName: string;
+  createAt?: number;
+  updateAt?: number;
+};
+
 async function getCollection(collectName: string) {
   const collect =
     CollectionCache[collectName] ||
@@ -36,6 +44,14 @@ async function getCollection(collectName: string) {
     CollectionCache[collectName] = collect;
   }
   return collect;
+}
+
+/**
+ * 获取所有logger列表(获取所有logger的集合)
+ */
+export async function getLoggerList() {
+  const collect = await collection.getConnection(SYSTEM_COLLECT_NAME);
+  return await collect.select();
 }
 
 /**
@@ -67,6 +83,24 @@ export async function appendLogger({ collectName, data }: appendDataOption) {
  */
 export async function createLogger({ collectName }: createLoggerOption) {
   const code = getMd5Code(`collection_${collectName}_${Date.now()}`);
-  const collect = await collection.createConnection(`${collectName}_${code}`);
+  const isExistsSystem = await collection.getCollectionIsExists(
+    SYSTEM_COLLECT_NAME
+  );
+
+  if (!isExistsSystem) {
+    await collection.createConnection(SYSTEM_COLLECT_NAME);
+  }
+  const systemCollect = await collection.getConnection(SYSTEM_COLLECT_NAME);
+
+  const appendName: string = `${collectName}_${code}`;
+  const createDate = Date.now();
+  const systemData: systemPostData = {
+    id: createDate,
+    collectName: appendName,
+    createAt: createDate,
+  };
+
+  await systemCollect.insert(systemData);
+  const collect = await collection.createConnection(appendName);
   return { status: collect, code };
 }

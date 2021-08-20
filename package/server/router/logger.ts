@@ -1,10 +1,20 @@
 import KoaRouter from '@koa/router';
-import { appendLogger, createLogger, getLogger } from '../method/logger';
+import {
+  appendLogger,
+  createLogger,
+  getLogger,
+  getLoggerList,
+} from '../method/logger';
 
 const router = new KoaRouter({
   prefix: '/logger',
 });
 
+router.get('getLoggerList', '/list', async (ctx) => {
+  ctx.body = await getLoggerList();
+});
+
+// 获取具体logger数据
 router.get('getLogger', '/get', async (ctx) => {
   const { key = '', page = 1, where = '', limit = 10 } = ctx.query;
   console.log(ctx.query);
