@@ -40,6 +40,8 @@ router.post('createLogger', '/create', async (ctx, next) => {
 
 router.post('appendLogger', '/append', async (ctx) => {
   const { key, data } = ctx.request.body;
+  console.log(data);
+
   ctx.body = await appendLogger({
     collectName: <string>key,
     data,

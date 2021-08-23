@@ -73,7 +73,12 @@ export async function getLogger({
  */
 export async function appendLogger({ collectName, data }: appendDataOption) {
   const collect = await getCollection(collectName);
-  const postData = Object.assign({ createAt: Date.now() }, data);
+  const postData = Object.assign(
+    {
+      createAt: Date.now(),
+    },
+    data
+  );
   return await collect.insert(postData);
 }
 
