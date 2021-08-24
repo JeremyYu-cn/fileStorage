@@ -1,12 +1,12 @@
 import Collection from './collection';
 
-// const collection = new Collection();
+const collection = new Collection();
 
-// // collection.createConnection('test');
+// collection.createConnection('test');
 
-// collection.getConnection('test').then(async (msg) => {
-//   const result = await msg.insert({ test1: 222, test2: 333 });
-//   console.log(result);
-// });
+collection.getConnection('test').then(async (msg) => {
+  const result = await msg.update({ data: {} }, {});
+  console.log(result);
+});
 
 export default Collection;

@@ -103,7 +103,7 @@ export default class Select {
   /**
    * 更新数据
    */
-  private update(
+  public update(
     { data }: IUpdateOption,
     condition: Record<string, any>
   ): Promise<IReadLineResult<Record<string, any>>> {
@@ -117,7 +117,7 @@ export default class Select {
   public async insert(data: Record<string, any>) {
     return await insertData({
       fileName: this.filePath,
-      data: `\n${JSON.stringify(data)}`,
+      data: `${JSON.stringify(data)}`,
     });
   }
 

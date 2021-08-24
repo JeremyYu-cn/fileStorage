@@ -64,12 +64,11 @@ export function readlineFile<T extends Record<string, any> = {}>({
           rl.close();
         } else {
           const json: T = JSON.parse(msg);
-
           if (
             (!handleCondition || handleCondition(json)) &&
             arr.length < limit
           ) {
-            arr.push(json);
+            arr.push(JSON.parse(json.data));
             if (arr.length >= limit) {
               rl.close();
             }
@@ -98,18 +97,16 @@ export function updateFile<T extends Record<string, any>>({
 }: IUpdateFile<T>): Promise<IReadLineResult<T[]>> {
   return new Promise((resolve) => {
     const startTime = Date.now();
-    const str = '{ testwrite: 111 }\n';
-    const strBuf = Buffer.from(str, 'utf-8');
     const readStream = createReadStream(fileName);
     let data = '';
 
-    const stream = createWriteStream(fileName, {
-      start: 10,
-    });
-    stream.write(strBuf, (err) => {
-      console.log();
-    });
+    const stream = createWriteStream(fileName);
+    // cursorTo(stream, 0, 1, () => {
+    //   stream.write(JSON.stringify({ data: 111 }));
+    // });
 
+    // clearLine(stream, -1);
+    resolve(getSuccessStatus([], 1));
     // const rl = createInterface({
     //   input: createReadStream(fileName),
     // });
@@ -145,8 +142,15 @@ export function insertData({
   data,
 }: IInsertFile): Promise<IReadLineResult<[]>> {
   const startTime = Date.now();
+  // @TODO add id and next link
+  const insertData = {
+    id: '',
+    data,
+    create: Date.now(),
+    next: '',
+  };
   return new Promise((resolve) => {
-    appendFile(fileName, data, 'utf-8', (err) => {
+    appendFile(fileName, `\n${JSON.stringify(insertData)}`, 'utf-8', (err) => {
       if (err) {
         resolve(getErrorStatus(err.message, dayjs().diff(startTime, 'ms')));
       } else {
