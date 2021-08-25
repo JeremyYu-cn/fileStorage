@@ -58,14 +58,15 @@ export function mkdirAsync(dirPath: string): Promise<boolean> {
  */
 export function createFile(
   basePath: string,
-  fileName: string
+  fileName: string,
+  data: string = ''
 ): Promise<boolean> {
   return new Promise(async (resolve) => {
     if (!(await getFileIsExists(basePath))) {
       const createResult = await mkdirAsync(basePath);
     }
     const filePath = path.resolve(basePath, fileName);
-    writeFile(filePath, '', { encoding: 'utf-8' }, (err) => {
+    writeFile(filePath, data, { encoding: 'utf-8' }, (err) => {
       if (!err) resolve(true);
       else {
         console.log(err);

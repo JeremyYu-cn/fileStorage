@@ -3,7 +3,8 @@
  */
 import path from 'path';
 import config, { IConfifOption } from '../default.config';
-import { getFileIsExists, createFile } from '../utils/fileControl';
+import { getFileIsExists } from '../utils/fileControl';
+import { createCollection } from './create';
 import Select from '../select';
 
 export default class Collection {
@@ -31,25 +32,33 @@ export default class Collection {
    * 创建集合
    */
   async createConnection(name: string) {
-    const fileName = `${name}.${this.extra}`;
-    const filePath = path.resolve(this.baseUrl, fileName);
+    const filePath = path.resolve(this.baseUrl, name);
     if (await getFileIsExists(filePath)) {
       throw new Error('collection is exists');
     }
-    return await createFile(this.baseUrl, fileName);
+    return await createCollection({
+      filePath: this.baseUrl,
+      fileName: name,
+      extra: this.extra,
+    }).then((msg) => {
+      console.log(msg);
+
+      return msg;
+    });
   }
 
   /**
    * 获取集合
    */
   async getConnection(name: string): Promise<Select> {
-    const filePath = path.resolve(this.baseUrl, `${name}.${this.extra}`);
+    const filePath = path.resolve(this.baseUrl, name);
     console.log(filePath);
 
     if (!(await getFileIsExists(filePath))) {
       throw new Error('collection is not exists');
     }
-    return new Select(filePath);
+    const select = new Select(filePath);
+    return await select.init();
   }
 
   /**

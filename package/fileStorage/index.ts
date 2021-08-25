@@ -2,11 +2,12 @@ import Collection from './collection';
 
 const collection = new Collection();
 
-// collection.createConnection('test');
+// collection.createConnection('test111');
 
-collection.getConnection('test').then(async (msg) => {
-  const result = await msg.update({ data: {} }, {});
-  console.log(result);
+collection.getConnection('test111').then((msg) => {
+  msg.select().then((msg) => {
+    console.log(msg);
+  });
 });
 
 export default Collection;

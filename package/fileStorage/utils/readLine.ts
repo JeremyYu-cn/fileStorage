@@ -57,6 +57,10 @@ export function readlineFile<T extends Record<string, any> = {}>({
       let count = 0;
 
       rl.on('line', (msg) => {
+        if (count === 0) {
+          count++;
+          return;
+        }
         if (msg === '') return;
         if (ignoreNum > count) {
           count++;

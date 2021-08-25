@@ -6,6 +6,9 @@ import {
   updateFile,
   insertData,
 } from '../utils/readLine';
+import path from 'path';
+import type { collectionHeadData } from '@/collection/create';
+import { getHeadData } from '@/collection/head';
 
 export interface IUpdateOption {
   data: Record<string, any>;
@@ -13,6 +16,7 @@ export interface IUpdateOption {
 
 enum ConditionType {
   LIMIT = 'limit',
+  ORDER = 'order',
   CONDITION = 'condition',
 }
 
@@ -22,6 +26,10 @@ type conditionData = {
 };
 
 export default class Select {
+  /**
+   * 头文件信息
+   */
+  private headData: collectionHeadData | null;
   /**
    * 文件路径
    */
@@ -34,9 +42,24 @@ export default class Select {
   constructor(filePath: string) {
     this.filePath = filePath;
     this.totalLimit = 10000000;
+    this.headData = null;
+  }
+
+  async init() {
+    await this.getHead();
+    console.log(this.headData);
+    return this;
+  }
+
+  private async getHead(): Promise<collectionHeadData> {
+    if (!this.headData) {
+      this.headData = await getHeadData(this.filePath);
+    }
+    return this.headData;
   }
 
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
+    const { head } = <collectionHeadData>this.headData;
     const params: conditionData[] = Array.from(arguments[0] || []);
     let conditionData = params.filter(
       (val) => val.type === ConditionType.CONDITION
@@ -48,7 +71,7 @@ export default class Select {
 
     return new Promise((resolve) => {
       readlineFile<T>({
-        fileName: this.filePath,
+        fileName: path.resolve(this.filePath, head),
         handleCondition: (data) => this.handleSelectCondition(data, condition),
         limit,
         totalLimit: this.totalLimit,
