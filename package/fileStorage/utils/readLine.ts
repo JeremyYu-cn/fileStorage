@@ -1,14 +1,16 @@
 import { checkIsFile } from '../utils/fileControl';
 import { createReadStream, createWriteStream, appendFile } from 'fs';
+import path from 'path';
 import { createInterface } from 'readline';
 import dayjs from 'dayjs';
+import { collectionDataHead } from '@/collection/create';
 
 export interface IReadLineFile<T> {
   fileName: string;
   page?: number;
   pageSize?: number;
   limit?: number;
-  totalLimit?: number;
+  order?: 'asc' | 'desc';
   handleCondition?: (data: T) => boolean;
 }
 
@@ -34,57 +36,88 @@ export interface IReadLineResult<T> {
  * @param param0
  * @returns
  */
-export function readlineFile<T extends Record<string, any> = {}>({
-  fileName,
-  handleCondition,
-  page = 1,
-  pageSize = 100,
-  limit = 100,
-  totalLimit = 10000,
-}: IReadLineFile<T>): Promise<IReadLineResult<T[]>> {
+export function readlineFile<T extends Record<string, any> = {}>(
+  data: IReadLineFile<T>
+): Promise<IReadLineResult<T[]>> {
   return new Promise(async (resolve, reject) => {
+    const { fileName } = data;
     if (!(await checkIsFile(fileName))) {
       reject(getErrorStatus(`${fileName} is not exists`));
     } else {
       const startTime = Date.now();
-      const arr: T[] = [];
-      const rl = createInterface({
-        input: createReadStream(fileName),
-      });
-
-      const ignoreNum = (page - 1) * pageSize;
-      let lineIndex = 0;
-      let count = 0;
-
-      rl.on('line', (msg) => {
-        if (count === 0) {
-          count++;
-          return;
-        }
-        if (msg === '') return;
-        if (ignoreNum > count) {
-          count++;
-        } else if (lineIndex > totalLimit) {
-          rl.close();
-        } else {
-          const json: T = JSON.parse(msg);
-          if (
-            (!handleCondition || handleCondition(json)) &&
-            arr.length < limit
-          ) {
-            arr.push(JSON.parse(json.data));
-            if (arr.length >= limit) {
-              rl.close();
-            }
-          }
-          lineIndex++;
-        }
-      });
-
-      rl.on('close', () =>
-        resolve(getSuccessStatus(arr, dayjs().diff(startTime, 'ms')))
-      );
+      const result = await readPage<T>(data);
+      resolve(getSuccessStatus(result, dayjs().diff(startTime, 'ms')));
     }
+  });
+}
+
+function readPage<T extends Record<string, any> = {}>(
+  {
+    fileName,
+    handleCondition,
+    page = 1,
+    pageSize = 100,
+    limit = 100,
+    order = 'asc',
+  }: IReadLineFile<T>,
+  prevData: T[] = []
+): Promise<T[]> {
+  return new Promise((resolve) => {
+    const arr: T[] = prevData;
+    const rl = createInterface({
+      input: createReadStream(fileName),
+    });
+
+    const ignoreNum = (page - 1) * pageSize;
+    let pageHead: collectionDataHead = {
+      prev: '',
+      next: '',
+      total: 0,
+      limit: 0,
+    };
+    let count = 0;
+
+    rl.on('line', (msg) => {
+      if (count === 0) {
+        pageHead = JSON.parse(msg);
+        count++;
+        return;
+      }
+      if (msg === '') return;
+      if (ignoreNum > count) {
+        count++;
+      } else {
+        const json: T = JSON.parse(msg);
+        const data: T = JSON.parse(json.data);
+        if ((!handleCondition || handleCondition(data)) && arr.length < limit) {
+          arr.push(data);
+          if (arr.length >= limit) {
+            rl.close();
+          }
+        }
+      }
+    });
+
+    rl.on('close', async () => {
+      if (arr.length < limit && pageHead.next) {
+        const nextPath = path.resolve(fileName, '..', pageHead.next);
+        console.log(nextPath);
+        const result = await readPage(
+          {
+            fileName: nextPath,
+            handleCondition,
+            page,
+            pageSize,
+            limit,
+            order,
+          },
+          arr
+        );
+        resolve(result);
+      } else {
+        resolve(arr);
+      }
+    });
   });
 }
 

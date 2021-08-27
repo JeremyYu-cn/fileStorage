@@ -60,6 +60,7 @@ export default class Select {
 
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
     const { head } = <collectionHeadData>this.headData;
+
     const params: conditionData[] = Array.from(arguments[0] || []);
     let conditionData = params.filter(
       (val) => val.type === ConditionType.CONDITION
@@ -74,7 +75,6 @@ export default class Select {
         fileName: path.resolve(this.filePath, head),
         handleCondition: (data) => this.handleSelectCondition(data, condition),
         limit,
-        totalLimit: this.totalLimit,
       }).then((msg) => {
         resolve(msg);
       });
@@ -87,13 +87,17 @@ export default class Select {
    * @returns
    */
   where(condition: Record<string, any>) {
-    return this.controlFun(condition, {
-      limit: (num: number) =>
-        this.limit.bind(this, num, {
-          type: ConditionType.CONDITION,
-          condition,
-        })(),
-    });
+    const arr = Array.from(arguments);
+    return this.controlFun(
+      [...arr, { type: ConditionType.CONDITION, condition }],
+      {
+        limit: (num: number) =>
+          this.limit.bind(this, num, {
+            type: ConditionType.CONDITION,
+            condition,
+          })(),
+      }
+    );
   }
 
   /**
@@ -152,6 +156,7 @@ export default class Select {
     condition: Record<string, any>
   ): boolean {
     const keys = Object.keys(condition);
+
     return keys.every((val) => {
       const value = condition[val];
       if (condition.type === 'limit') return true;
