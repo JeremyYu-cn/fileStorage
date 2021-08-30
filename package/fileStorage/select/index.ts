@@ -1,14 +1,10 @@
-import {
-  IReadLineFile,
-  IReadLineResult,
-  IInsertFile,
-  readlineFile,
-  updateFile,
-  insertData,
-} from '../utils/readLine';
 import path from 'path';
 import type { collectionHeadData } from '@/collection/create';
 import { getHeadData } from '@/collection/head';
+import { IReadLineResult } from '@/utils/statusMsg';
+import { readlineFile } from '@/collection/select';
+import { insertData } from '@/collection/append';
+import { handleUpdate } from '@/collection/update';
 
 export interface IUpdateOption {
   data: Record<string, any>;
@@ -133,7 +129,7 @@ export default class Select {
   public update(
     { data }: IUpdateOption,
     condition: Record<string, any>
-  ): Promise<IReadLineResult<Record<string, any>>> {
+  ): Promise<IReadLineResult<any>> {
     return new Promise(async (resolve) => {
       const result = await this.handleUpdate(condition, data);
 
@@ -142,9 +138,11 @@ export default class Select {
   }
 
   public async insert(data: Record<string, any>) {
+    const { last } = <collectionHeadData>this.headData;
     return await insertData({
-      fileName: this.filePath,
+      fileName: path.resolve(this.filePath, last),
       data: `${JSON.stringify(data)}`,
+      headData: <collectionHeadData>this.headData,
     });
   }
 
@@ -180,7 +178,7 @@ export default class Select {
     condition: Record<string, any>,
     updateValue: Record<string, any>
   ) {
-    const result = await updateFile({
+    const result = await handleUpdate({
       fileName: this.filePath,
       handleCondition: (data) => this.handleSelectCondition(data, condition),
       updateValue,

@@ -1,10 +1,14 @@
 import { createFile } from '@/utils/fileControl';
 import path from 'path';
+import { DEFAULT_PAGE_TOTAL } from './config';
 
 type collectionParam = {
   filePath: string;
   fileName: string;
   extra: string;
+  prev?: string;
+  next?: string;
+  total?: number;
 };
 
 export type collectionHeadData = {
@@ -71,20 +75,23 @@ async function createCollectionHeadFile({
 /**
  * 创建集合数据文件
  */
-async function createCollectionDataFile({
+export async function createCollectionDataFile({
   fileName,
   filePath,
   extra,
+  prev = '',
+  next = '',
+  total = 0,
 }: collectionParam): Promise<boolean> {
-  const headData: collectionDataHead = {
-    prev: null,
-    next: null,
-    total: 0,
-    limit: 50000,
+  const writeDate: collectionDataHead = {
+    prev,
+    next,
+    total,
+    limit: DEFAULT_PAGE_TOTAL,
   };
   return await createFile(
     filePath,
     `${fileName}.${extra}`,
-    JSON.stringify(headData)
+    JSON.stringify(writeDate)
   );
 }
