@@ -6,7 +6,7 @@ import {
   IReadLineResult,
 } from '@/utils/statusMsg';
 import dayjs from 'dayjs';
-import { createReadStream } from 'fs';
+import { createReadStream, promises } from 'fs';
 import path from 'path';
 import { createInterface } from 'readline';
 import { collectionDataHead } from './create';
@@ -25,12 +25,16 @@ export function readlineFile<T extends Record<string, any> = {}>(
       reject(getErrorStatus(`${fileName} is not exists`));
     } else {
       const startTime = Date.now();
-      const result = await readPage<T>(data);
+      const result =
+        data.order === 'desc'
+          ? await descReadPage<T>(data)
+          : await readPage<T>(data);
       resolve(getSuccessStatus(result, dayjs().diff(startTime, 'ms')));
     }
   });
 }
 
+// 顺序查询
 export function readPage<T extends Record<string, any> = {}>(
   {
     fileName,
@@ -99,4 +103,49 @@ export function readPage<T extends Record<string, any> = {}>(
       }
     });
   });
+}
+
+// 倒序查询
+export async function descReadPage<T extends Record<string, any> = {}>(
+  {
+    fileName,
+    handleCondition,
+    page = 1,
+    pageSize = 100,
+    limit = 100,
+    order = 'asc',
+  }: IReadLineFile<T>,
+  prevData: T[] = []
+): Promise<T[]> {
+  const chunk = await promises.readFile(fileName, 'utf8');
+  let chunkArr = chunk.split('\n');
+  const pageHead: collectionDataHead = JSON.parse(chunkArr[0]);
+  chunkArr = chunkArr.reverse();
+
+  // do not use the first line
+  for (let i = 0, max = chunkArr.length - 1; i < max; i++) {
+    const data: string = JSON.parse(chunkArr[i]).data;
+    const json: T = JSON.parse(data);
+    if (handleCondition && handleCondition(json)) {
+      prevData.push(json);
+    }
+    if (prevData.length >= limit) {
+      break;
+    }
+  }
+
+  if (pageHead.prev && prevData.length < limit) {
+    return await descReadPage(
+      {
+        fileName: path.resolve(fileName, '..', pageHead.prev),
+        handleCondition,
+        page,
+        limit,
+        order,
+      },
+      prevData
+    );
+  } else {
+    return prevData;
+  }
 }

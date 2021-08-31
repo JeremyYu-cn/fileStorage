@@ -16,9 +16,12 @@ enum ConditionType {
   CONDITION = 'condition',
 }
 
-type conditionData = {
-  type: ConditionType;
-  condition: any;
+type OrderType = 'asc' | 'desc';
+
+type createConditionParam = {
+  order?: OrderType;
+  where?: Record<string, any>;
+  limit?: number;
 };
 
 export default class Select {
@@ -53,60 +56,39 @@ export default class Select {
     return this.headData;
   }
 
+  /**
+   * 创建查询条件
+   * @param condition
+   * @returns
+   */
+  createCondition(condition: createConditionParam) {
+    return this.controlFun(condition);
+  }
+
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
-    const { head } = <collectionHeadData>this.headData;
+    console.log(arguments[0]);
 
-    const params: conditionData[] = Array.from(arguments[0] || []);
-    let conditionData = params.filter(
-      (val) => val.type === ConditionType.CONDITION
-    )[0];
-    const condition = conditionData ? conditionData.condition : {};
+    const { head, last } = <collectionHeadData>this.headData;
 
-    let limitData = params.filter((val) => val.type === ConditionType.LIMIT)[0];
-    const limit = limitData ? limitData.condition : this.totalLimit;
-
+    const {
+      where = {},
+      limit,
+      order,
+    }: Record<keyof createConditionParam, any> = arguments[0] || {};
+    const readFilePath = path.resolve(
+      this.filePath,
+      order === 'asc' ? head : last
+    );
     return new Promise((resolve) => {
       readlineFile<T>({
-        fileName: path.resolve(this.filePath, head),
-        handleCondition: (data) => this.handleSelectCondition(data, condition),
+        fileName: readFilePath,
+        handleCondition: (data) => this.handleSelectCondition(data, where),
         limit,
+        order,
       }).then((msg) => {
         resolve(msg);
       });
     });
-  }
-
-  /**
-   * 查询条件
-   * @param condition
-   * @returns
-   */
-  where(condition: Record<string, any>) {
-    const arr = Array.from(arguments);
-    return this.controlFun(
-      [...arr, { type: ConditionType.CONDITION, condition }],
-      {
-        limit: (num: number) =>
-          this.limit.bind(this, num, {
-            type: ConditionType.CONDITION,
-            condition,
-          })(),
-      }
-    );
-  }
-
-  /**
-   * 限制查询条目
-   * @param num
-   * @returns
-   */
-  limit(num: number) {
-    const nums = Array.prototype.splice.call(arguments, 0, 1);
-    const arr = Array.from(arguments);
-    return this.controlFun(
-      [...arr, { type: ConditionType.LIMIT, condition: nums }],
-      {}
-    );
   }
 
   private controlFun<T extends Record<string, any>>(
