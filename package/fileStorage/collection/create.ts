@@ -1,4 +1,4 @@
-import { createFile } from '@/utils/fileControl';
+import { createFile } from '../utils/fileControl';
 import path from 'path';
 import { DEFAULT_PAGE_TOTAL } from './config';
 

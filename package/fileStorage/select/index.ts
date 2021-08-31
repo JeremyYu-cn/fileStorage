@@ -21,7 +21,7 @@ type OrderType = 'asc' | 'desc';
 type createConditionParam = {
   order?: OrderType;
   where?: Record<string, any>;
-  limit?: number;
+  limit?: number | number[];
 };
 
 export default class Select {

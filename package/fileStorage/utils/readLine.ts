@@ -1,11 +1,6 @@
-import { createReadStream, createWriteStream } from 'fs';
-import { getSuccessStatus, IReadLineResult } from './statusMsg';
-
 export interface IReadLineFile<T> {
   fileName: string;
-  page?: number;
-  pageSize?: number;
-  limit?: number;
+  limit?: number | number[];
   order?: 'asc' | 'desc';
   handleCondition?: (data: T) => boolean;
 }

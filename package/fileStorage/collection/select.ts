@@ -36,15 +36,9 @@ export function readlineFile<T extends Record<string, any> = {}>(
 
 // 顺序查询
 export function readPage<T extends Record<string, any> = {}>(
-  {
-    fileName,
-    handleCondition,
-    page = 1,
-    pageSize = 100,
-    limit = 100,
-    order = 'asc',
-  }: IReadLineFile<T>,
-  prevData: T[] = []
+  { fileName, handleCondition, limit = 100, order = 'asc' }: IReadLineFile<T>,
+  prevData: T[] = [],
+  ignoreCount: number = 0
 ): Promise<T[]> {
   return new Promise((resolve) => {
     const arr: T[] = prevData;
@@ -52,33 +46,36 @@ export function readPage<T extends Record<string, any> = {}>(
       input: createReadStream(fileName),
     });
 
-    const ignoreNum = (page - 1) * pageSize;
+    const ignoreNum = Array.isArray(limit) ? limit[0] : null;
+    const limitNum = Array.isArray(limit) ? limit[1] : limit;
     let pageHead: collectionDataHead = {
       prev: '',
       next: '',
       total: 0,
       limit: 0,
     };
-    let count = 0;
 
     rl.on('line', (msg) => {
-      if (count === 0) {
+      if (ignoreCount === 0) {
         pageHead = JSON.parse(msg);
-        count++;
+        ignoreCount++;
         return;
       }
       if (msg === '') return;
-      if (ignoreNum > count) {
-        count++;
-      } else {
-        const json: T = JSON.parse(msg);
-        const data: T = JSON.parse(json.data);
-        if ((!handleCondition || handleCondition(data)) && arr.length < limit) {
+      const json: T = JSON.parse(msg);
+      const data: T = JSON.parse(json.data);
+      if (
+        (!handleCondition || handleCondition(data)) &&
+        arr.length < limitNum
+      ) {
+        if (ignoreNum && ignoreNum > ignoreCount) {
+          ignoreCount++;
+        } else {
           arr.push(data);
-          if (arr.length >= limit) {
-            rl.close();
-          }
         }
+      }
+      if (arr.length >= limitNum) {
+        rl.close();
       }
     });
 
@@ -90,8 +87,6 @@ export function readPage<T extends Record<string, any> = {}>(
           {
             fileName: nextPath,
             handleCondition,
-            page,
-            pageSize,
             limit,
             order,
           },
@@ -107,43 +102,44 @@ export function readPage<T extends Record<string, any> = {}>(
 
 // 倒序查询
 export async function descReadPage<T extends Record<string, any> = {}>(
-  {
-    fileName,
-    handleCondition,
-    page = 1,
-    pageSize = 100,
-    limit = 100,
-    order = 'asc',
-  }: IReadLineFile<T>,
-  prevData: T[] = []
+  { fileName, handleCondition, limit = 100, order = 'asc' }: IReadLineFile<T>,
+  prevData: T[] = [],
+  ignoreCount: number = 0
 ): Promise<T[]> {
   const chunk = await promises.readFile(fileName, 'utf8');
   let chunkArr = chunk.split('\n');
   const pageHead: collectionDataHead = JSON.parse(chunkArr[0]);
   chunkArr = chunkArr.reverse();
 
+  const ignoreNum = Array.isArray(limit) ? limit[0] : null;
+  const limitNum = Array.isArray(limit) ? limit[1] : limit;
   // do not use the first line
+
   for (let i = 0, max = chunkArr.length - 1; i < max; i++) {
     const data: string = JSON.parse(chunkArr[i]).data;
     const json: T = JSON.parse(data);
     if (handleCondition && handleCondition(json)) {
-      prevData.push(json);
+      if (ignoreNum && ignoreNum > ignoreCount) {
+        ignoreCount++;
+      } else {
+        prevData.push(json);
+      }
     }
-    if (prevData.length >= limit) {
+    if (prevData.length >= limitNum) {
       break;
     }
   }
 
-  if (pageHead.prev && prevData.length < limit) {
+  if (pageHead.prev && prevData.length < limitNum) {
     return await descReadPage(
       {
         fileName: path.resolve(fileName, '..', pageHead.prev),
         handleCondition,
-        page,
         limit,
         order,
       },
-      prevData
+      prevData,
+      ignoreCount
     );
   } else {
     return prevData;

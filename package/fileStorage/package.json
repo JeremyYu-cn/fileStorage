@@ -15,12 +15,19 @@
   "author": "Jeremy Yu",
   "license": "MIT",
   "devDependencies": {
-    "jest": "^27.0.6",
+    "@babel/core": "^7.15.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.1",
+    "babel-jest": "^27.1.0",
+    "jest": "^27.1.0",
+    "regenerator-runtime": "^0.13.9",
     "ts-node": "^10.2.0",
     "tsconfig-paths": "^3.10.1"
   },
   "dependencies": {
     "dayjs": "^1.10.6",
-    "log4js": "^6.3.0"
+    "log4js": "^6.3.0",
+    "ts-jest": "^27.0.5"
   }
 }

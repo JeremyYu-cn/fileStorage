@@ -1,6 +1,6 @@
 import Collection from './collection';
 
-const collection = new Collection();
+// const collection = new Collection();
 
 // collection.createConnection('test111');
 
@@ -10,17 +10,17 @@ const collection = new Collection();
 //   });
 // });
 
-collection.getConnection('test111').then((msg) => {
-  msg
-    .createCondition({
-      where: { test: 333111 },
-      limit: 10,
-      order: 'desc',
-    })
-    .select()
-    .then((msg) => {
-      console.log(msg);
-    });
-});
+// collection.getConnection('test111').then((msg) => {
+//   msg
+//     .createCondition({
+//       where: { test: 333111 },
+//       limit: 10,
+//       order: 'desc',
+//     })
+//     .select()
+//     .then((msg) => {
+//       console.log(msg);
+//     });
+// });
 
 export default Collection;
