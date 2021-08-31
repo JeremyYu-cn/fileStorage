@@ -41,8 +41,6 @@ export default class Collection {
       fileName: name,
       extra: this.extra,
     }).then((msg) => {
-      console.log(msg);
-
       return msg;
     });
   }
@@ -52,7 +50,6 @@ export default class Collection {
    */
   async getConnection(name: string): Promise<Select> {
     const filePath = path.resolve(this.baseUrl, name);
-    console.log(filePath);
 
     if (!(await getFileIsExists(filePath))) {
       throw new Error('collection is not exists');

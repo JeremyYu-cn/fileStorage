@@ -15,14 +15,15 @@ export interface IReadLineResult<T> {
 export function getSuccessStatus<T extends Record<string, any>[]>(
   data: T,
   time: number,
-  msg: string = 'success'
+  msg: string = 'success',
+  length = 0
 ): IReadLineResult<T> {
   return {
     code: 200,
     msg,
     data,
     time: `${time} ms`,
-    length: data.length,
+    length: length || data.length,
   };
 }
 

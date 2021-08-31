@@ -43,7 +43,6 @@ export default class Select {
 
   async init() {
     await this.getHead();
-    console.log(this.headData);
     return this;
   }
 

@@ -21,7 +21,7 @@ export async function handleUpdate<T extends Record<string, any>>(
   return getSuccessStatus<any>(
     [],
     dayjs().diff(startTime, 'ms'),
-    `${result} records was changed.`
+    `${result} records changed.`
   );
 }
 
@@ -36,23 +36,24 @@ export async function updateFile<T extends Record<string, any>>({
   pageCount = 0,
 }: IUpdateFile<T>): Promise<number> {
   const chunk = await promises.readFile(fileName, 'utf8');
-  const chunkArr = chunk.split('\n');
+  let chunkArr = chunk.split('\n');
   const pageHead: collectionDataHead = JSON.parse(chunkArr.splice(0, 1)[0]);
-  chunkArr.forEach((val) => {
+  chunkArr = chunkArr.map((val) => {
     const json: IInsertData = JSON.parse(val);
+
     if (handleCondition && handleCondition(JSON.parse(json.data))) {
       json.data = JSON.stringify(updateValue);
       pageCount++;
     }
     val = JSON.stringify(json);
+
     return val;
   });
-  console.log(chunkArr);
-
-  //   await promises.writeFile(fileName, JSON.stringify(chunkArr.join('\n')));
+  chunkArr.unshift(JSON.stringify(pageHead));
+  await promises.writeFile(fileName, chunkArr.join('\n'));
   if (pageHead.next) {
     return updateFile({
-      fileName: pageHead.next,
+      fileName: path.resolve(fileName, '..', pageHead.next),
       updateValue,
       handleCondition,
       pageCount,
