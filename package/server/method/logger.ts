@@ -5,6 +5,7 @@
  * author Jeremy Yu
  */
 
+import { IReadLineResult } from '@/../fileStorage/utils/statusMsg';
 import Collection from '../../fileStorage/collection';
 import Select from '../../fileStorage/select';
 import { getMd5Code } from '../common/crypto';
@@ -14,7 +15,7 @@ const collection = new Collection();
 const CollectionCache: Record<string, Select> = {};
 
 export type getCollectionOption = {
-  collectName: string;
+  key: string;
   page: number;
   limit: number;
   where: Record<string, any>;
@@ -29,9 +30,14 @@ export type createLoggerOption = {
   collectName: string;
 };
 
+export type returnData<T> = {
+  total: number;
+} & IReadLineResult<T>;
+
 type systemPostData = {
   id: number;
-  collectName: string;
+  name: string;
+  key: string;
   createAt?: number;
   updateAt?: number;
 };
@@ -58,13 +64,18 @@ export async function getLoggerList() {
  * 查询服务
  * @returns
  */
-export async function getLogger({
-  collectName,
-  limit,
-  where,
-}: getCollectionOption) {
-  const collect = await getCollection(collectName);
-  return await collect.where(where).limit(limit).select();
+export async function getLogger({ key, limit, where }: getCollectionOption) {
+  const collect = await getCollection(`${key}`);
+  const count = await collect.createCondition({ where }).count();
+  const result = await collect
+    .createCondition({ where, limit, order: 'desc' })
+    .select();
+  return Object.assign(
+    {
+      total: count,
+    },
+    result
+  );
 }
 
 /**
@@ -101,7 +112,8 @@ export async function createLogger({ collectName }: createLoggerOption) {
   const createDate = Date.now();
   const systemData: systemPostData = {
     id: createDate,
-    collectName: appendName,
+    name: collectName,
+    key: appendName,
     createAt: createDate,
   };
 

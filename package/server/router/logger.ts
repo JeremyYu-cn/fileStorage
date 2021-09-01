@@ -20,7 +20,7 @@ router.get('getLogger', '/get', async (ctx) => {
   console.log(ctx.query);
 
   ctx.body = await getLogger({
-    collectName: <string>key,
+    key: <string>key,
     page: <number>page,
     limit: <number>limit,
     where: where ? JSON.parse(<string>where) : {},
