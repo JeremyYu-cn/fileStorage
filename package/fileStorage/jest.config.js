@@ -11,7 +11,7 @@ module.exports = {
     },
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>',
+    '^@/(.*)$': '<rootDir>/$1',
   },
   rootDir: __dirname,
   transform: {

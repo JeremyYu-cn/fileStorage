@@ -4,9 +4,10 @@ import {
   IReadLineResult,
 } from '@/utils/statusMsg';
 import dayjs from 'dayjs';
-import { appendFile, promises } from 'fs';
+import { promises } from 'fs';
 import path from 'path';
-import { DEFAULT_PAGE_TOTAL, HEAD_EXTRA } from './config';
+import { v4 } from 'uuid';
+import { HEAD_EXTRA } from './config';
 import {
   collectionDataHead,
   collectionHeadData,
@@ -41,13 +42,18 @@ export async function insertData({
   const startTime = Date.now();
   // @TODO add id and next link
   const insertData: IInsertData = {
-    id: '',
+    id: v4(),
     data,
     create: Date.now(),
     next: '',
   };
   const pageHead = await getPageHeader(fileName);
   let nextPath = fileName;
+  let updateCollectionData: collectionHeadData = Object.assign(headData, {
+    total: ++headData.total,
+  });
+
+  const headPath = path.resolve(fileName, '..', HEAD_EXTRA);
   if (pageHead.total === pageHead.limit) {
     const newFileName = Date.now();
     nextPath = path.resolve(fileName, '..', `${newFileName}.${extra}`);
@@ -58,12 +64,9 @@ export async function insertData({
       prev: headData.last,
       total: 1,
     });
-    const updateCollectionData: collectionHeadData = Object.assign(headData, {
+    updateCollectionData = Object.assign(updateCollectionData, {
       last: `${newFileName}.${extra}`,
-      total: ++headData.total,
     });
-    const headPath = path.resolve(fileName, '..', HEAD_EXTRA);
-    await updateCollectionHead(headPath, updateCollectionData);
   }
 
   try {
@@ -72,6 +75,8 @@ export async function insertData({
       `\n${JSON.stringify(insertData)}`,
       'utf8'
     );
+
+    await updateCollectionHead(headPath, updateCollectionData);
 
     if (nextPath !== fileName) {
       const writePageHead: collectionDataHead = Object.assign(pageHead, {

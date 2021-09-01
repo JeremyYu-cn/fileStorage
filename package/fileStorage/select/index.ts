@@ -66,14 +66,12 @@ export default class Select {
   }
 
   select<T = {}>(): Promise<IReadLineResult<T[]>> {
-    console.log(arguments[0]);
-
     const { head, last } = <collectionHeadData>this.headData;
 
     const {
       where = {},
       limit,
-      order,
+      order = 'asc',
     }: Record<keyof createConditionParam, any> = arguments[0] || {};
     const readFilePath = path.resolve(
       this.filePath,
