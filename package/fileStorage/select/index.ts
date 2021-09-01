@@ -2,18 +2,12 @@ import path from 'path';
 import type { collectionHeadData } from '@/collection/create';
 import { getHeadData } from '@/collection/head';
 import { IReadLineResult } from '@/utils/statusMsg';
-import { readlineFile } from '@/collection/select';
+import { readlineFile, readPageWithCount } from '@/collection/select';
 import { insertData } from '@/collection/append';
 import { handleUpdate } from '@/collection/update';
 
 export interface IUpdateOption {
   data: Record<string, any>;
-}
-
-enum ConditionType {
-  LIMIT = 'limit',
-  ORDER = 'order',
-  CONDITION = 'condition',
 }
 
 type OrderType = 'asc' | 'desc';
@@ -65,7 +59,19 @@ export default class Select {
     return this.controlFun(condition);
   }
 
-  select<T = {}>(): Promise<IReadLineResult<T[]>> {
+  async count(...args: any): Promise<number> {
+    const { head } = <collectionHeadData>this.headData;
+    const { where = {} }: Record<keyof createConditionParam, any> =
+      args[0] || {};
+    const readFilePath = path.resolve(this.filePath, head);
+
+    return await readPageWithCount({
+      fileName: readFilePath,
+      handleCondition: (data) => this.handleSelectCondition(data, where),
+    });
+  }
+
+  select(): Promise<IReadLineResult<any>> {
     const { head, last } = <collectionHeadData>this.headData;
 
     const {
@@ -78,7 +84,7 @@ export default class Select {
       order === 'asc' ? head : last
     );
     return new Promise((resolve) => {
-      readlineFile<T>({
+      readlineFile<any>({
         fileName: readFilePath,
         handleCondition: (data) => this.handleSelectCondition(data, where),
         limit,
@@ -97,6 +103,7 @@ export default class Select {
       {
         select: this.select.bind(this, condition),
         update: (data: IUpdateOption) => this.update(data, condition),
+        count: this.count.bind(this, condition),
       },
       extraFunction
     );
@@ -136,7 +143,6 @@ export default class Select {
 
     return keys.every((val) => {
       const value = condition[val];
-      if (condition.type === 'limit') return true;
 
       switch (Object.prototype.toString.call(val)) {
         case '[object String]':

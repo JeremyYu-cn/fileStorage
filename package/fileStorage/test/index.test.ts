@@ -22,37 +22,37 @@ describe('test file storage collection', () => {
     }
   });
 
-  test('test append data', async () => {
-    const sock = await collect.getConnection('test_createCollection');
-    const result = await sock.insert({ test: 111222 });
+  // test('test append data', async () => {
+  //   const sock = await collect.getConnection('test_createCollection');
+  //   const result = await sock.insert({ test: 111222 });
 
-    expect(result).toMatchObject<IReadLineResult<[]>>({
-      code: 200,
-      msg: 'success',
-      data: [],
-      time: expect.stringMatching(/\d ms/),
-      length: expect.any(Number),
-    });
-  });
+  //   expect(result).toMatchObject<IReadLineResult<[]>>({
+  //     code: 200,
+  //     msg: 'success',
+  //     data: [],
+  //     time: expect.stringMatching(/\d ms/),
+  //     length: expect.any(Number),
+  //   });
+  // });
 
-  test('test update data', async () => {
-    const sock = await collect.getConnection('test_createCollection');
-    const result = await sock.update(
-      {
-        data: {
-          test: 222333,
-        },
-      },
-      {}
-    );
-    expect(result).toMatchObject<IReadLineResult<[]>>({
-      code: 200,
-      msg: expect.stringMatching(/\d records changed./),
-      data: [],
-      time: expect.stringMatching(/\d ms/),
-      length: expect.any(Number),
-    });
-  });
+  // test('test update data', async () => {
+  //   const sock = await collect.getConnection('test_createCollection');
+  //   const result = await sock.update(
+  //     {
+  //       data: {
+  //         test: 222333,
+  //       },
+  //     },
+  //     {}
+  //   );
+  //   expect(result).toMatchObject<IReadLineResult<[]>>({
+  //     code: 200,
+  //     msg: expect.stringMatching(/\d records changed./),
+  //     data: [],
+  //     time: expect.stringMatching(/\d ms/),
+  //     length: expect.any(Number),
+  //   });
+  // });
 
   test('select data', async () => {
     const sock = await collect.getConnection('test_createCollection');
@@ -88,7 +88,7 @@ describe('test file storage collection', () => {
     const sock = await collect.getConnection('test_createCollection');
     const result = await sock
       .createCondition({
-        where: { test: 111222 },
+        where: { test: 'hello world' },
         limit: 10,
       })
       .select();
@@ -118,5 +118,25 @@ describe('test file storage collection', () => {
       time: expect.stringMatching(/\d ms/),
       length: 10,
     });
+  });
+
+  test('test use count methods', async () => {
+    const sock = await collect.getConnection('test_createCollection');
+    const result = await sock.count();
+
+    expect(Number.isInteger(result)).toBeTruthy();
+  });
+
+  test('test use count methods with condition', async () => {
+    const sock = await collect.getConnection('test_createCollection');
+    const result = await sock
+      .createCondition({
+        where: {
+          test: 111222,
+        },
+      })
+      .count();
+
+    expect(Number.isInteger(result)).toBeTruthy();
   });
 });

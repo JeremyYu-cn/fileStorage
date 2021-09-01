@@ -82,7 +82,6 @@ export function readPage<T extends Record<string, any> = {}>(
     rl.on('close', async () => {
       if (arr.length < limit && pageHead.next) {
         const nextPath = path.resolve(fileName, '..', pageHead.next);
-        console.log(nextPath);
         const result = await readPage(
           {
             fileName: nextPath,
@@ -95,6 +94,58 @@ export function readPage<T extends Record<string, any> = {}>(
         resolve(result);
       } else {
         resolve(arr);
+      }
+    });
+  });
+}
+
+/**
+ * 查询一共有多少条记录
+ */
+export async function readPageWithCount<T extends Record<string, any>>(
+  { fileName, handleCondition }: IReadLineFile<T>,
+  count: number = 0
+): Promise<number> {
+  return new Promise((resolve) => {
+    let ignoreCount = 0;
+    const rl = createInterface({
+      input: createReadStream(fileName),
+    });
+
+    let pageHead: collectionDataHead = {
+      prev: '',
+      next: '',
+      total: 0,
+      limit: 0,
+    };
+
+    rl.on('line', (msg) => {
+      if (ignoreCount === 0) {
+        ignoreCount++;
+        pageHead = JSON.parse(msg);
+        return;
+      }
+      if (msg === '') return;
+      const json: T = JSON.parse(msg);
+      const data: T = JSON.parse(json.data);
+      if (!handleCondition || handleCondition(data)) {
+        count++;
+      }
+    });
+
+    rl.on('close', async () => {
+      if (pageHead.next) {
+        const nextPath = path.resolve(fileName, '..', pageHead.next);
+        const result = await readPageWithCount(
+          {
+            fileName: nextPath,
+            handleCondition,
+          },
+          count
+        );
+        resolve(result);
+      } else {
+        resolve(count);
       }
     });
   });
