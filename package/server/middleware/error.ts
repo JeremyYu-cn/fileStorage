@@ -5,8 +5,11 @@ export const handleError: Koa.Middleware = async function (ctx, next) {
     await next();
   } catch (err) {
     const code = handleErrorCode(err);
-    ctx.body = { code: code, msg: err.toString() };
     console.log(err);
+    ctx.response.status = code;
+    ctx.response.body = {
+      msg: err.toString(),
+    };
   }
 };
 

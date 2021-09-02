@@ -6,6 +6,7 @@ const EXCLUDE_ROUTE: string | RegExp | (string | RegExp)[] | undefined = [
   '/logger/get',
   '/logger/list',
   '/logger/create',
+  '/login',
 ];
 
 export const handleJwt = function () {

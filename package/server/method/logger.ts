@@ -1,7 +1,7 @@
 /**
  * name logger business
  * date 2021-08-17
- * update 2021-08-18
+ * update 2021-09-02
  * author Jeremy Yu
  */
 
@@ -107,17 +107,15 @@ export async function createLogger({ collectName }: createLoggerOption) {
     await collection.createConnection(SYSTEM_COLLECT_NAME);
   }
   const systemCollect = await collection.getConnection(SYSTEM_COLLECT_NAME);
-
-  const appendName: string = `${collectName}_${code}`;
   const createDate = Date.now();
   const systemData: systemPostData = {
     id: createDate,
     name: collectName,
-    key: appendName,
+    key: code,
     createAt: createDate,
   };
 
   await systemCollect.insert(systemData);
-  const collect = await collection.createConnection(appendName);
-  return { status: collect, code };
+  const collect = await collection.createConnection(code);
+  return { status: collect, code, name: collectName, createDate };
 }

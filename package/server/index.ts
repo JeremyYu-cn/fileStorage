@@ -13,9 +13,11 @@ app.use(handlCORS);
 app.use(handleJwt());
 // 传入参数处理
 app.use(bodyParser());
+
 // 路由
 app.use(router.routes());
 app.use(router.allowedMethods());
+
 // 公共返回
 app.use(handleReturn);
 
