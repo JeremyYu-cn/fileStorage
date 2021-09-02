@@ -35,10 +35,11 @@ export function getSuccessStatus<T extends Record<string, any>[]>(
  */
 export function getErrorStatus(
   msg: string,
-  time?: number
+  time?: number,
+  code: number = 500
 ): IReadLineResult<never> {
   return {
-    code: 500,
+    code,
     msg,
     time: `${time} ms`,
   };

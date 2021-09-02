@@ -62,7 +62,7 @@ export default class Collection {
    * 查看collection是否存在
    */
   async getCollectionIsExists(name: string): Promise<boolean> {
-    const filePath = path.resolve(this.baseUrl, `${name}.${this.extra}`);
+    const filePath = path.resolve(this.baseUrl, `${name}`);
     return await getFileIsExists(filePath);
   }
 }
