@@ -25,6 +25,7 @@ export interface IInsertFile {
 export type IInsertData = {
   id: string;
   data: string;
+  isDelete?: boolean;
   create: number;
   next: string;
 };

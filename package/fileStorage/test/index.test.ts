@@ -139,4 +139,20 @@ describe('test file storage collection', () => {
 
     expect(Number.isInteger(result)).toBeTruthy();
   });
+
+  test('test delete collection list', async () => {
+    const sock = await collect.getConnection('test_createCollection');
+    const result = await sock
+      .createCondition({
+        where: { test: 111222 },
+      })
+      .delete();
+    expect(result).toMatchObject({
+      code: 200,
+      msg: /\d data was deleted/,
+      data: [],
+      time: /\d ms/,
+      length: expect.any(Number),
+    });
+  });
 });

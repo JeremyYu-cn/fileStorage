@@ -1,5 +1,5 @@
 import { checkIsFile } from '@/utils/fileControl';
-import { IReadLineFile } from '@/utils/readLine';
+import { IReadLineFile, readFileByLine } from '@/utils/readLine';
 import {
   getErrorStatus,
   getSuccessStatus,
@@ -42,10 +42,6 @@ export function readPage<T extends Record<string, any> = {}>(
 ): Promise<T[]> {
   return new Promise((resolve) => {
     const arr: T[] = prevData;
-    const rl = createInterface({
-      input: createReadStream(fileName),
-    });
-
     const ignoreNum = Array.isArray(limit) ? limit[0] : null;
     const limitNum = Array.isArray(limit) ? limit[1] : limit;
     let pageHead: collectionDataHead = {
@@ -54,47 +50,49 @@ export function readPage<T extends Record<string, any> = {}>(
       total: 0,
       limit: 0,
     };
-
-    rl.on('line', (msg) => {
-      if (ignoreCount === 0) {
-        pageHead = JSON.parse(msg);
-        ignoreCount++;
-        return;
-      }
-      if (msg === '') return;
-      const json: T = JSON.parse(msg);
-      const data: T = JSON.parse(json.data);
-      if (
-        (!handleCondition || handleCondition(data)) &&
-        arr.length < limitNum
-      ) {
-        if (ignoreNum && ignoreNum > ignoreCount) {
+    readFileByLine({
+      fileName,
+      onLine: (msg, rl) => {
+        if (ignoreCount === 0) {
+          pageHead = JSON.parse(msg);
           ignoreCount++;
-        } else {
-          arr.push(data);
+          return;
         }
-      }
-      if (arr.length >= limitNum) {
-        rl.close();
-      }
-    });
-
-    rl.on('close', async () => {
-      if (arr.length < limit && pageHead.next) {
-        const nextPath = path.resolve(fileName, '..', pageHead.next);
-        const result = await readPage(
-          {
-            fileName: nextPath,
-            handleCondition,
-            limit,
-            order,
-          },
-          arr
-        );
-        resolve(result);
-      } else {
-        resolve(arr);
-      }
+        if (msg === '') return;
+        const json: T = JSON.parse(msg);
+        const data: T = JSON.parse(json.data);
+        if (json.isDelete) return;
+        if (
+          (!handleCondition || handleCondition(data)) &&
+          arr.length < limitNum
+        ) {
+          if (ignoreNum && ignoreNum > ignoreCount) {
+            ignoreCount++;
+          } else {
+            arr.push(data);
+          }
+        }
+        if (arr.length >= limitNum) {
+          rl.close();
+        }
+      },
+      onEnd: async () => {
+        if (arr.length < limit && pageHead.next) {
+          const nextPath = path.resolve(fileName, '..', pageHead.next);
+          const result = await readPage(
+            {
+              fileName: nextPath,
+              handleCondition,
+              limit,
+              order,
+            },
+            arr
+          );
+          resolve(result);
+        } else {
+          resolve(arr);
+        }
+      },
     });
   });
 }
@@ -128,6 +126,7 @@ export async function readPageWithCount<T extends Record<string, any>>(
       if (msg === '') return;
       const json: T = JSON.parse(msg);
       const data: T = JSON.parse(json.data);
+      if (json.isDelete) return;
       if (!handleCondition || handleCondition(data)) {
         count++;
       }

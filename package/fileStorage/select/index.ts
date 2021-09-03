@@ -5,6 +5,7 @@ import { IReadLineResult } from '@/utils/statusMsg';
 import { readlineFile, readPageWithCount } from '@/collection/select';
 import { insertData } from '@/collection/append';
 import { handleUpdate } from '@/collection/update';
+import { deleteFileParam, handleDeleteFile } from '@/collection/delete';
 
 export interface IUpdateOption {
   data: Record<string, any>;
@@ -104,6 +105,7 @@ export default class Select {
         select: this.select.bind(this, condition),
         update: (data: IUpdateOption) => this.update(data, condition),
         count: this.count.bind(this, condition),
+        delete: () => this.delete(condition),
       },
       extraFunction
     );
@@ -112,15 +114,12 @@ export default class Select {
   /**
    * 更新数据
    */
-  public update(
+  public async update(
     { data }: IUpdateOption,
     condition: Record<string, any>
   ): Promise<IReadLineResult<any>> {
-    return new Promise(async (resolve) => {
-      const result = await this.handleUpdate(condition, data);
-
-      resolve(result);
-    });
+    const result = await this.handleUpdate(condition, data);
+    return result;
   }
 
   public async insert(data: Record<string, any>) {
@@ -130,6 +129,17 @@ export default class Select {
       data: `${JSON.stringify(data)}`,
       headData: <collectionHeadData>this.headData,
     });
+  }
+
+  public async delete(condition: Record<string, any>) {
+    const { head } = <collectionHeadData>this.headData;
+
+    const result = await handleDeleteFile({
+      fileName: path.resolve(this.filePath, head),
+      handleCondition: (data) =>
+        this.handleSelectCondition(data, condition.where),
+    });
+    return result;
   }
 
   /**
