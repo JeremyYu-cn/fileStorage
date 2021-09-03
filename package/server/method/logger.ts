@@ -64,11 +64,17 @@ export async function getLoggerList() {
  * 查询服务
  * @returns
  */
-export async function getLogger({ key, limit, where }: getCollectionOption) {
+export async function getLogger({
+  key,
+  limit,
+  where,
+  page,
+}: getCollectionOption) {
   const collect = await getCollection(`${key}`);
   const count = await collect.createCondition({ where }).count();
+  const ignoreNum = (page - 1) * limit;
   const result = await collect
-    .createCondition({ where, limit, order: 'desc' })
+    .createCondition({ where, limit: [ignoreNum, limit], order: 'desc' })
     .select();
   return Object.assign(
     {
