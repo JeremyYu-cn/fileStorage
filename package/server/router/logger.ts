@@ -17,7 +17,7 @@ router.get('getLoggerList', '/list', async (ctx) => {
 // 获取具体logger数据
 router.get('getLogger', '/get', async (ctx) => {
   const { key = '', page = 1, where = '', limit = 10 } = ctx.query;
-  console.log(ctx.query);
+  // console.log(ctx.state);
 
   ctx.body = await getLogger({
     key: <string>key,
@@ -40,7 +40,6 @@ router.post('createLogger', '/create', async (ctx, next) => {
 
 router.post('appendLogger', '/append', async (ctx) => {
   const { key, data } = ctx.request.body;
-  console.log(data);
 
   ctx.body = await appendLogger({
     collectName: <string>key,

@@ -12,6 +12,7 @@ import {
 import Collection from '../../fileStorage/collection';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config';
+import dayjs from 'dayjs';
 
 type LoginParam = {
   user: string;
@@ -44,7 +45,9 @@ export async function Login({ user, password }: LoginParam) {
       id,
       user,
       createAt,
-      token: jwt.sign(result, JWT_SECRET),
+      token: jwt.sign(result, JWT_SECRET, {
+        expiresIn: '2h',
+      }),
     };
   }
 }
