@@ -1,6 +1,6 @@
-import Collection from '../collection';
+import Collection from '../src/collection';
 import path from 'path';
-import { IReadLineResult } from '@/utils/statusMsg';
+import { IReadLineResult } from '../src/utils/statusMsg';
 
 const collect = new Collection({
   baseUrl: path.resolve(__dirname, '..', 'file_data'),
@@ -17,7 +17,7 @@ describe('test file storage collection', () => {
   test('test create collection fail', async () => {
     try {
       await collect.createConnection('test_createCollection');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toEqual('Error: collection is exists');
     }
   });

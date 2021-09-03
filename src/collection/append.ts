@@ -92,7 +92,7 @@ export async function insertData({
     }
 
     return getSuccessStatus([], dayjs().diff(startTime, 'ms'));
-  } catch (err) {
+  } catch (err: any) {
     return getErrorStatus(err.message, dayjs().diff(startTime, 'ms'));
   }
 }
