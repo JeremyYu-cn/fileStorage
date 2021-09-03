@@ -6,6 +6,7 @@ import config, { IConfifOption } from '../default.config';
 import { getFileIsExists } from '../utils/fileControl';
 import { createCollection } from './create';
 import Select from '../select';
+import { deleteCollection } from './delete';
 
 export default class Collection {
   private config: IConfifOption;
@@ -56,6 +57,16 @@ export default class Collection {
     }
     const select = new Select(filePath);
     return await select.init();
+  }
+
+  /**
+   * 删除集合
+   * @param name
+   * @returns
+   */
+  async deleteConnection(name: string): Promise<boolean> {
+    const filePath = path.resolve(this.baseUrl, name);
+    return await deleteCollection(filePath);
   }
 
   /**

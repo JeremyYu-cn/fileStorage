@@ -5,7 +5,7 @@ import { IReadLineResult } from '@/utils/statusMsg';
 import { readlineFile, readPageWithCount } from '@/collection/select';
 import { insertData } from '@/collection/append';
 import { handleUpdate } from '@/collection/update';
-import { deleteFileParam, handleDeleteFile } from '@/collection/delete';
+import { handleDeleteRecord } from '@/collection/delete';
 
 export interface IUpdateOption {
   data: Record<string, any>;
@@ -134,7 +134,7 @@ export default class Select {
   public async delete(condition: Record<string, any>) {
     const { head } = <collectionHeadData>this.headData;
 
-    const result = await handleDeleteFile({
+    const result = await handleDeleteRecord({
       fileName: path.resolve(this.filePath, head),
       handleCondition: (data) =>
         this.handleSelectCondition(data, condition.where),

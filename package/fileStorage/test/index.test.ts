@@ -155,4 +155,10 @@ describe('test file storage collection', () => {
       length: expect.any(Number),
     });
   });
+
+  // 删除集合
+  test('delete collection', async () => {
+    const isSuccess = await collect.deleteConnection('test111');
+    expect(isSuccess).toBeTruthy();
+  });
 });

@@ -14,9 +14,9 @@ export type deleteFileParam = deleteFileOption & {
   pageCount?: number;
 };
 
-export async function handleDeleteFile(data: deleteFileOption) {
+export async function handleDeleteRecord(data: deleteFileOption) {
   const startTime = Date.now();
-  const num = await deleteFile(data);
+  const num = await deleteRecord(data);
 
   return getSuccessStatus(
     [],
@@ -25,7 +25,7 @@ export async function handleDeleteFile(data: deleteFileOption) {
   );
 }
 
-export async function deleteFile({
+export async function deleteRecord({
   fileName,
   handleCondition,
   pageCount = 0,
@@ -48,12 +48,25 @@ export async function deleteFile({
   chunkArr.unshift(JSON.stringify(pageHead));
   await promises.writeFile(fileName, chunkArr.join('\n'));
   if (pageHead.next) {
-    return deleteFile({
+    return deleteRecord({
       fileName: path.resolve(fileName, '..', pageHead.next),
       handleCondition,
       pageCount,
     });
   } else {
     return pageCount;
+  }
+}
+
+// 删除集合
+export async function deleteCollection(fileName: string) {
+  try {
+    await promises.rm(fileName, {
+      recursive: true,
+    });
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
