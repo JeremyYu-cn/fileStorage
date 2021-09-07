@@ -7,12 +7,12 @@ const collect = new Collection({
 });
 
 describe('test file storage collection', () => {
-  // test('test create collection', async () => {
-  //   const isCreateSuccess = await collect.createConnection(
-  //     'test_createCollection'
-  //   );
-  //   expect(isCreateSuccess).toBeTruthy();
-  // });
+  test('test create collection', async () => {
+    const isCreateSuccess = await collect.createConnection(
+      'test_createCollection11'
+    );
+    expect(isCreateSuccess).toBeTruthy();
+  });
 
   test('test create collection fail', async () => {
     try {
@@ -158,7 +158,7 @@ describe('test file storage collection', () => {
 
   // 删除集合
   test('delete collection', async () => {
-    const isSuccess = await collect.deleteConnection('test111');
+    const isSuccess = await collect.deleteConnection('test_createCollection11');
     expect(isSuccess).toBeTruthy();
   });
 });

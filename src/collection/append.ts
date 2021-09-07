@@ -6,7 +6,7 @@ import {
 import dayjs from 'dayjs';
 import { promises } from 'fs';
 import path from 'path';
-import { v4 } from 'uuid';
+import uuid from 'uuid-random';
 import { HEAD_EXTRA } from './config';
 import {
   collectionDataHead,
@@ -43,7 +43,7 @@ export async function insertData({
   const startTime = Date.now();
   // @TODO add id and next link
   const insertData: IInsertData = {
-    id: v4(),
+    id: uuid(),
     data,
     create: Date.now(),
     next: '',
