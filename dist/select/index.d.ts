@@ -1,4 +1,4 @@
-import { IReadLineResult } from '@/utils/statusMsg';
+import { IReadLineResult } from '../utils/statusMsg';
 export interface IUpdateOption {
     data: Record<string, any>;
 }

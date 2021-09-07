@@ -1,10 +1,10 @@
-import { checkIsFile } from '@/utils/fileControl';
-import { IReadLineFile, readFileByLine } from '@/utils/readLine';
+import { checkIsFile } from '../utils/fileControl';
+import { IReadLineFile, readFileByLine } from '../utils/readLine';
 import {
   getErrorStatus,
   getSuccessStatus,
   IReadLineResult,
-} from '@/utils/statusMsg';
+} from '../utils/statusMsg';
 import dayjs from 'dayjs';
 import { createReadStream, promises } from 'fs';
 import path from 'path';

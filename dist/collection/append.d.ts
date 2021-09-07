@@ -1,4 +1,4 @@
-import { IReadLineResult } from '@/utils/statusMsg';
+import { IReadLineResult } from '../utils/statusMsg';
 import { collectionHeadData } from './create';
 export interface IInsertFile {
     fileName: string;

@@ -1,12 +1,12 @@
 {
   "name": "filectrl",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "a file storage system",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register ./index.ts --project ./tsconfig.json --files",
-    "build": "rollup -c ./rollup.config.js",
+    "build": "tsc -p ./tsconfig.build.json",
     "test": "jest"
   },
   "keywords": [

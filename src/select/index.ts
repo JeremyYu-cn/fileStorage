@@ -1,11 +1,11 @@
 import path from 'path';
-import type { collectionHeadData } from '@/collection/create';
-import { getHeadData } from '@/collection/head';
-import { IReadLineResult } from '@/utils/statusMsg';
-import { readlineFile, readPageWithCount } from '@/collection/select';
-import { insertData } from '@/collection/append';
-import { handleUpdate } from '@/collection/update';
-import { handleDeleteRecord } from '@/collection/delete';
+import type { collectionHeadData } from '../collection/create';
+import { getHeadData } from '../collection/head';
+import { IReadLineResult } from '../utils/statusMsg';
+import { readlineFile, readPageWithCount } from '../collection/select';
+import { insertData } from '../collection/append';
+import { handleUpdate } from '../collection/update';
+import { handleDeleteRecord } from '../collection/delete';
 
 export interface IUpdateOption {
   data: Record<string, any>;

@@ -2,7 +2,7 @@ import {
   getErrorStatus,
   getSuccessStatus,
   IReadLineResult,
-} from '@/utils/statusMsg';
+} from '../utils/statusMsg';
 import dayjs from 'dayjs';
 import { promises } from 'fs';
 import path from 'path';

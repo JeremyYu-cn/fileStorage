@@ -1,5 +1,5 @@
-import { IUpdateFile } from '@/utils/readLine';
-import { getSuccessStatus, IReadLineResult } from '@/utils/statusMsg';
+import { IUpdateFile } from '../utils/readLine';
+import { getSuccessStatus, IReadLineResult } from '../utils/statusMsg';
 import dayjs from 'dayjs';
 import { promises } from 'fs';
 import path from 'path';

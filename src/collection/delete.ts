@@ -1,4 +1,4 @@
-import { getSuccessStatus } from '@/utils/statusMsg';
+import { getSuccessStatus } from '../utils/statusMsg';
 import dayjs from 'dayjs';
 import { promises } from 'fs';
 import path from 'path';

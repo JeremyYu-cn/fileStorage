@@ -5,7 +5,7 @@
         "sourceMap": false,
         "removeComments": true,
         "stripInternal": true,
-        "outDir": "./"
+        "outDir": "./dist"
     },
     "exclude": ["test"]
 }
