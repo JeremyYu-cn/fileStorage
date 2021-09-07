@@ -7,12 +7,18 @@ import commonjs from '@rollup/plugin-commonjs';
  * @type import('rollup').RollupOptions
  */
 const config = {
-  input: path.resolve(__dirname, 'index.ts'),
+  input: path.resolve(__dirname, 'src', 'index.ts'),
   output: {
     file: path.resolve(outputPath, 'index.js'),
     format: 'cjs',
   },
-  plugins: [nodeResolve(), commonjs(), typescript()],
+  plugins: [
+    nodeResolve(),
+    commonjs(),
+    typescript({
+      tsconfig: path.resolve(__dirname, 'tsconfig.build.json'),
+    }),
+  ],
 };
 
 module.exports = config;
