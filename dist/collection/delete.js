@@ -1,14 +1,21 @@
-import { getSuccessStatus } from '@/utils/statusMsg';
-import dayjs from 'dayjs';
-import { promises } from 'fs';
-import path from 'path';
-export async function handleDeleteRecord(data) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCollection = exports.deleteRecord = exports.handleDeleteRecord = void 0;
+const statusMsg_1 = require("@/utils/statusMsg");
+const dayjs_1 = __importDefault(require("dayjs"));
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
+async function handleDeleteRecord(data) {
     const startTime = Date.now();
     const num = await deleteRecord(data);
-    return getSuccessStatus([], dayjs().diff(startTime, 'ms'), `${num} data was deleted`);
+    return (0, statusMsg_1.getSuccessStatus)([], (0, dayjs_1.default)().diff(startTime, 'ms'), `${num} data was deleted`);
 }
-export async function deleteRecord({ fileName, handleCondition, pageCount = 0, }) {
-    const chunk = await promises.readFile(fileName, 'utf8');
+exports.handleDeleteRecord = handleDeleteRecord;
+async function deleteRecord({ fileName, handleCondition, pageCount = 0, }) {
+    const chunk = await fs_1.promises.readFile(fileName, 'utf8');
     let chunkArr = chunk.split('\n');
     const pageHead = JSON.parse(chunkArr.splice(0, 1)[0]);
     chunkArr = chunkArr.map((val) => {
@@ -21,10 +28,10 @@ export async function deleteRecord({ fileName, handleCondition, pageCount = 0, }
         return val;
     });
     chunkArr.unshift(JSON.stringify(pageHead));
-    await promises.writeFile(fileName, chunkArr.join('\n'));
+    await fs_1.promises.writeFile(fileName, chunkArr.join('\n'));
     if (pageHead.next) {
         return deleteRecord({
-            fileName: path.resolve(fileName, '..', pageHead.next),
+            fileName: path_1.default.resolve(fileName, '..', pageHead.next),
             handleCondition,
             pageCount,
         });
@@ -33,9 +40,10 @@ export async function deleteRecord({ fileName, handleCondition, pageCount = 0, }
         return pageCount;
     }
 }
-export async function deleteCollection(fileName) {
+exports.deleteRecord = deleteRecord;
+async function deleteCollection(fileName) {
     try {
-        await promises.rm(fileName, {
+        await fs_1.promises.rm(fileName, {
             recursive: true,
         });
         return true;
@@ -45,3 +53,4 @@ export async function deleteCollection(fileName) {
         return false;
     }
 }
+exports.deleteCollection = deleteCollection;

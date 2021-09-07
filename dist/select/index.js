@@ -1,10 +1,15 @@
-import path from 'path';
-import { getHeadData } from '@/collection/head';
-import { readlineFile, readPageWithCount } from '@/collection/select';
-import { insertData } from '@/collection/append';
-import { handleUpdate } from '@/collection/update';
-import { handleDeleteRecord } from '@/collection/delete';
-export default class Select {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
+const head_1 = require("@/collection/head");
+const select_1 = require("@/collection/select");
+const append_1 = require("@/collection/append");
+const update_1 = require("@/collection/update");
+const delete_1 = require("@/collection/delete");
+class Select {
     headData;
     filePath;
     totalLimit;
@@ -19,7 +24,7 @@ export default class Select {
     }
     async getHead() {
         if (!this.headData) {
-            this.headData = await getHeadData(this.filePath);
+            this.headData = await (0, head_1.getHeadData)(this.filePath);
         }
         return this.headData;
     }
@@ -29,8 +34,8 @@ export default class Select {
     async count(...args) {
         const { head } = this.headData;
         const { where = {} } = args[0] || {};
-        const readFilePath = path.resolve(this.filePath, head);
-        return await readPageWithCount({
+        const readFilePath = path_1.default.resolve(this.filePath, head);
+        return await (0, select_1.readPageWithCount)({
             fileName: readFilePath,
             handleCondition: (data) => this.handleSelectCondition(data, where),
         });
@@ -38,9 +43,9 @@ export default class Select {
     select() {
         const { head, last } = this.headData;
         const { where = {}, limit, order = 'asc', } = arguments[0] || {};
-        const readFilePath = path.resolve(this.filePath, order === 'asc' ? head : last);
+        const readFilePath = path_1.default.resolve(this.filePath, order === 'asc' ? head : last);
         return new Promise((resolve) => {
-            readlineFile({
+            (0, select_1.readlineFile)({
                 fileName: readFilePath,
                 handleCondition: (data) => this.handleSelectCondition(data, where),
                 limit,
@@ -64,16 +69,16 @@ export default class Select {
     }
     async insert(data) {
         const { last } = this.headData;
-        return await insertData({
-            fileName: path.resolve(this.filePath, last),
+        return await (0, append_1.insertData)({
+            fileName: path_1.default.resolve(this.filePath, last),
             data: `${JSON.stringify(data)}`,
             headData: this.headData,
         });
     }
     async delete(condition) {
         const { head } = this.headData;
-        const result = await handleDeleteRecord({
-            fileName: path.resolve(this.filePath, head),
+        const result = await (0, delete_1.handleDeleteRecord)({
+            fileName: path_1.default.resolve(this.filePath, head),
             handleCondition: (data) => this.handleSelectCondition(data, condition.where),
         });
         return result;
@@ -93,7 +98,7 @@ export default class Select {
         });
     }
     async handleUpdate(condition, updateValue) {
-        const result = await handleUpdate({
+        const result = await (0, update_1.handleUpdate)({
             fileName: this.filePath,
             handleCondition: (data) => this.handleSelectCondition(data, condition),
             updateValue,
@@ -102,3 +107,4 @@ export default class Select {
         return result;
     }
 }
+exports.default = Select;

@@ -1,8 +1,14 @@
-import { createFile } from '../utils/fileControl';
-import path from 'path';
-import { DEFAULT_PAGE_TOTAL } from './config';
-export async function createCollection({ fileName, filePath, extra, }) {
-    const collectionPath = path.resolve(filePath, fileName);
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createCollectionDataFile = exports.createCollection = void 0;
+const fileControl_1 = require("../utils/fileControl");
+const path_1 = __importDefault(require("path"));
+const config_1 = require("./config");
+async function createCollection({ fileName, filePath, extra, }) {
+    const collectionPath = path_1.default.resolve(filePath, fileName);
     const collectionFileName = `${Date.now()}`;
     return await createCollectionHeadFile({
         fileName: collectionFileName,
@@ -10,6 +16,7 @@ export async function createCollection({ fileName, filePath, extra, }) {
         extra,
     });
 }
+exports.createCollection = createCollection;
 async function createCollectionHeadFile({ fileName, filePath, extra, }) {
     const headName = `${fileName}.${extra}`;
     const headData = {
@@ -18,7 +25,7 @@ async function createCollectionHeadFile({ fileName, filePath, extra, }) {
         last: headName,
         indexPath: '',
     };
-    const headResult = await createFile(filePath, `.head`, JSON.stringify(headData));
+    const headResult = await (0, fileControl_1.createFile)(filePath, `.head`, JSON.stringify(headData));
     const dataResult = await createCollectionDataFile({
         fileName,
         filePath,
@@ -26,12 +33,13 @@ async function createCollectionHeadFile({ fileName, filePath, extra, }) {
     });
     return headResult && dataResult;
 }
-export async function createCollectionDataFile({ fileName, filePath, extra, prev = '', next = '', total = 0, }) {
+async function createCollectionDataFile({ fileName, filePath, extra, prev = '', next = '', total = 0, }) {
     const writeDate = {
         prev,
         next,
         total,
-        limit: DEFAULT_PAGE_TOTAL,
+        limit: config_1.DEFAULT_PAGE_TOTAL,
     };
-    return await createFile(filePath, `${fileName}.${extra}`, JSON.stringify(writeDate));
+    return await (0, fileControl_1.createFile)(filePath, `${fileName}.${extra}`, JSON.stringify(writeDate));
 }
+exports.createCollectionDataFile = createCollectionDataFile;
