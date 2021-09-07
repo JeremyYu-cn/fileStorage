@@ -6,3 +6,5 @@ tsconfig.build.json
 .babelrc
 .gitignore
 index.ts
+file_data
+node_modules
