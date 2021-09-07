@@ -1,8 +1,9 @@
 {
   "name": "filectrl",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "a file storage system",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register ./index.ts --project ./tsconfig.json --files",
     "build": "rollup -c ./rollup.config.js",
