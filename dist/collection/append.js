@@ -1,30 +1,36 @@
-import { getErrorStatus, getSuccessStatus, } from '../utils/statusMsg';
-import dayjs from 'dayjs';
-import { promises } from 'fs';
-import path from 'path';
-import { v4 } from 'uuid';
-import { HEAD_EXTRA } from './config';
-import { createCollectionDataFile, } from './create';
-import { getPageHeader, updateCollectionHead, updatePageHead } from './head';
-export async function insertData({ fileName, data, headData, extra = 'fsdat', }) {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.insertData = void 0;
+const statusMsg_1 = require("../utils/statusMsg");
+const dayjs_1 = __importDefault(require("dayjs"));
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
+const uuid_1 = require("uuid");
+const config_1 = require("./config");
+const create_1 = require("./create");
+const head_1 = require("./head");
+async function insertData({ fileName, data, headData, extra = 'fsdat', }) {
     const startTime = Date.now();
     const insertData = {
-        id: v4(),
+        id: (0, uuid_1.v4)(),
         data,
         create: Date.now(),
         next: '',
     };
-    const pageHead = await getPageHeader(fileName);
+    const pageHead = await (0, head_1.getPageHeader)(fileName);
     let nextPath = fileName;
     let updateCollectionData = Object.assign(headData, {
         total: ++headData.total,
     });
-    const headPath = path.resolve(fileName, '..', HEAD_EXTRA);
+    const headPath = path_1.default.resolve(fileName, '..', config_1.HEAD_EXTRA);
     if (pageHead.total === pageHead.limit) {
         const newFileName = Date.now();
-        nextPath = path.resolve(fileName, '..', `${newFileName}.${extra}`);
-        await createCollectionDataFile({
-            filePath: path.resolve(fileName, '..'),
+        nextPath = path_1.default.resolve(fileName, '..', `${newFileName}.${extra}`);
+        await (0, create_1.createCollectionDataFile)({
+            filePath: path_1.default.resolve(fileName, '..'),
             fileName: `${newFileName}`,
             extra,
             prev: headData.last,
@@ -35,20 +41,21 @@ export async function insertData({ fileName, data, headData, extra = 'fsdat', })
         });
     }
     try {
-        await promises.appendFile(nextPath, `\n${JSON.stringify(insertData)}`, 'utf8');
-        await updateCollectionHead(headPath, updateCollectionData);
+        await fs_1.promises.appendFile(nextPath, `\n${JSON.stringify(insertData)}`, 'utf8');
+        await (0, head_1.updateCollectionHead)(headPath, updateCollectionData);
         if (nextPath !== fileName) {
             const writePageHead = Object.assign(pageHead, {
-                next: `${path.basename(nextPath)}`,
+                next: `${path_1.default.basename(nextPath)}`,
             });
-            await updatePageHead(fileName, writePageHead);
+            await (0, head_1.updatePageHead)(fileName, writePageHead);
         }
         else {
-            await updatePageHead(nextPath, Object.assign(pageHead, { total: ++pageHead.total }));
+            await (0, head_1.updatePageHead)(nextPath, Object.assign(pageHead, { total: ++pageHead.total }));
         }
-        return getSuccessStatus([], dayjs().diff(startTime, 'ms'));
+        return (0, statusMsg_1.getSuccessStatus)([], (0, dayjs_1.default)().diff(startTime, 'ms'));
     }
     catch (err) {
-        return getErrorStatus(err.message, dayjs().diff(startTime, 'ms'));
+        return (0, statusMsg_1.getErrorStatus)(err.message, (0, dayjs_1.default)().diff(startTime, 'ms'));
     }
 }
+exports.insertData = insertData;

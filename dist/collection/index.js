@@ -1,19 +1,24 @@
-import path from 'path';
-import config from '../default.config';
-import { getFileIsExists } from '../utils/fileControl';
-import { createCollection } from './create';
-import Select from '../select';
-import { deleteCollection } from './delete';
-export default class Collection {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
+const default_config_1 = __importDefault(require("../default.config"));
+const fileControl_1 = require("../utils/fileControl");
+const create_1 = require("./create");
+const select_1 = __importDefault(require("../select"));
+const delete_1 = require("./delete");
+class Collection {
     config;
     baseUrl;
     extra;
     constructor(fileConfig) {
-        this.config = config;
+        this.config = default_config_1.default;
         this.baseUrl = '';
         this.extra = 'fsdat';
         if (fileConfig) {
-            this.config = Object.assign(config, fileConfig);
+            this.config = Object.assign(default_config_1.default, fileConfig);
         }
         this.init();
     }
@@ -22,11 +27,11 @@ export default class Collection {
         this.baseUrl = baseUrl;
     }
     async createConnection(name) {
-        const filePath = path.resolve(this.baseUrl, name);
-        if (await getFileIsExists(filePath)) {
+        const filePath = path_1.default.resolve(this.baseUrl, name);
+        if (await (0, fileControl_1.getFileIsExists)(filePath)) {
             throw new Error('collection is exists');
         }
-        return await createCollection({
+        return await (0, create_1.createCollection)({
             filePath: this.baseUrl,
             fileName: name,
             extra: this.extra,
@@ -35,19 +40,20 @@ export default class Collection {
         });
     }
     async getConnection(name) {
-        const filePath = path.resolve(this.baseUrl, name);
-        if (!(await getFileIsExists(filePath))) {
+        const filePath = path_1.default.resolve(this.baseUrl, name);
+        if (!(await (0, fileControl_1.getFileIsExists)(filePath))) {
             throw new Error('collection is not exists');
         }
-        const select = new Select(filePath);
+        const select = new select_1.default(filePath);
         return await select.init();
     }
     async deleteConnection(name) {
-        const filePath = path.resolve(this.baseUrl, name);
-        return await deleteCollection(filePath);
+        const filePath = path_1.default.resolve(this.baseUrl, name);
+        return await (0, delete_1.deleteCollection)(filePath);
     }
     async getCollectionIsExists(name) {
-        const filePath = path.resolve(this.baseUrl, `${name}`);
-        return await getFileIsExists(filePath);
+        const filePath = path_1.default.resolve(this.baseUrl, `${name}`);
+        return await (0, fileControl_1.getFileIsExists)(filePath);
     }
 }
+exports.default = Collection;

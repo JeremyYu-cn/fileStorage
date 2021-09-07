@@ -1,5 +1,10 @@
-import path from 'path';
-const config = {
-    baseUrl: path.resolve(process.cwd(), 'file_data'),
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-export default config;
+Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
+const config = {
+    baseUrl: path_1.default.resolve(process.cwd(), 'file_data'),
+};
+exports.default = config;
