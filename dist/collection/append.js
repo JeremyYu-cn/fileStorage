@@ -8,14 +8,14 @@ const statusMsg_1 = require("../utils/statusMsg");
 const dayjs_1 = __importDefault(require("dayjs"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
-const uuid_1 = require("uuid");
+const uuid_random_1 = __importDefault(require("uuid-random"));
 const config_1 = require("./config");
 const create_1 = require("./create");
 const head_1 = require("./head");
 async function insertData({ fileName, data, headData, extra = 'fsdat', }) {
     const startTime = Date.now();
     const insertData = {
-        id: (0, uuid_1.v4)(),
+        id: (0, uuid_random_1.default)(),
         data,
         create: Date.now(),
         next: '',

@@ -6,6 +6,7 @@ import { readlineFile, readPageWithCount } from '../collection/select';
 import { insertData } from '../collection/append';
 import { handleUpdate } from '../collection/update';
 import { handleDeleteRecord } from '../collection/delete';
+import { selectCondition } from './condition';
 
 export interface IUpdateOption {
   data: Record<string, any>;
@@ -149,20 +150,7 @@ export default class Select {
     data: Record<string, any>,
     condition: Record<string, any>
   ): boolean {
-    const keys = Object.keys(condition);
-
-    return keys.every((val) => {
-      const value = condition[val];
-
-      switch (Object.prototype.toString.call(val)) {
-        case '[object String]':
-        case '[object Number]':
-        case '[object Boolean]':
-          return value === data[val];
-        default:
-          return true;
-      }
-    });
+    return selectCondition(data, condition);
   }
 
   /**
